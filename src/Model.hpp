@@ -1,0 +1,25 @@
+#pragma once
+
+#include <vector>
+
+class Model
+{
+public:
+	Model();
+	Model(const std::vector<float>& vertices, const std::vector<unsigned int>& indices);
+	Model(std::vector<float>&& vertices, std::vector<unsigned int>&& indices);
+	~Model();
+
+	void Draw();
+
+protected:
+	void CreateVAO();
+	virtual void DefineVAOLayout();
+
+protected:
+	std::vector<float> vertices;
+	std::vector<unsigned int> indices;
+
+private:
+	unsigned int vbo, ebo, vao;
+};

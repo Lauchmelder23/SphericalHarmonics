@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include <complex>
+#include <functional>
 
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -19,8 +20,8 @@ Shader* Orbital::defaultShader = nullptr;
 std::complex<double> SphericalHarmonic(unsigned int l, unsigned int m, float theta, float phi);
 unsigned int Fac(unsigned int n);
 
-Orbital::Orbital(unsigned int l, unsigned int m) :
-	l(l), m(m)
+Orbital::Orbital(int l, int m) :
+	l(l), m(m), positiveColor({ 0.1f, 0.85f, 0.1f }), negativeColor({ 0.85f, 0.1f, 0.1f })
 {
 	if (defaultShader == nullptr)
 	{
@@ -29,7 +30,7 @@ Orbital::Orbital(unsigned int l, unsigned int m) :
 			#version 460 core
 
 			layout(location = 0) in vec3 position;
-			layout(location = 1) in vec3 color;
+			layout(location = 1) in uint sign;		// 1 = positive, 0 = negative
 
 			out vec3 outColor;
 
@@ -37,9 +38,12 @@ Orbital::Orbital(unsigned int l, unsigned int m) :
 			uniform mat4 view;
 			uniform mat4 projection;
 
+			uniform vec3 positiveColor;
+			uniform vec3 negativeColor;
+
 			void main()
 			{
-				outColor = color;
+				outColor = (sign > 0) ? positiveColor : negativeColor;
 				gl_Position = projection * view * model * vec4(position, 1.0f);
 			}	
 		)",
@@ -58,8 +62,8 @@ Orbital::Orbital(unsigned int l, unsigned int m) :
 		);
 	}
 
-	UpdateModel();
 	CreateVAO();
+	UpdateModel();
 
 	modelMatrix = glm::rotate(modelMatrix, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	modelMatrix = glm::scale(modelMatrix, glm::vec3(3.0f));
@@ -71,12 +75,28 @@ void Orbital::BindDefaultShader(Camera& camera)
 	defaultShader->SetMatrix("model", glm::value_ptr(modelMatrix));
 	defaultShader->SetMatrix("view", glm::value_ptr(camera.GetViewMatrix()));
 	defaultShader->SetMatrix("projection", glm::value_ptr(camera.GetProjectionMatrix()));
+
+	defaultShader->SetVector3("positiveColor", glm::value_ptr(positiveColor));
+	defaultShader->SetVector3("negativeColor", glm::value_ptr(negativeColor));
+}
+
+float* Orbital::GetPositiveColorVPtr()
+{
+	return glm::value_ptr(positiveColor);
+}
+
+float* Orbital::GetNegativeColorVPtr()
+{
+	return glm::value_ptr(negativeColor);
 }
 
 void Orbital::UpdateModel()
 {
 	unsigned int verticesPerRing = 70;
 	unsigned int rings = 70;
+
+	vertices.clear();
+	indices.clear();
 
 	for (int ring = 0; ring <= rings; ring++)
 	{
@@ -85,25 +105,23 @@ void Orbital::UpdateModel()
 			float phi = vertex * TWO_PI / verticesPerRing;
 			float theta = ring * PI / rings;
 
-			std::complex value = SphericalHarmonic(l, m, theta, phi);
-			double distance = std::abs(std::real(value));
-			// std::cout << "(" << theta << ", " << phi << ") -> " << distance << std::endl;
+			std::complex value = SphericalHarmonic(l, std::abs(m), theta, phi);
+			
+			double distance = 0.0f;
+			if(m < 0)
+				distance = std::abs(std::imag(value));
+			else 
+				distance = std::abs(std::real(value));
+
 			vertices.push_back(distance * std::cos(phi) * std::sin(theta));
 			vertices.push_back(distance * std::sin(phi) * std::sin(theta));
 			vertices.push_back(distance * std::cos(theta));
 
-			if (std::real(value) < 0)
-			{
-				vertices.push_back(0.85f);
-				vertices.push_back(0.1f);
-				vertices.push_back(0.1f);
-			}
+			if (m < 0)
+				vertices.push_back(std::imag(value) >= 0);
 			else
-			{
-				vertices.push_back(0.1f);
-				vertices.push_back(0.85f);
-				vertices.push_back(0.1f);
-			}
+				vertices.push_back(std::real(value) >= 0);
+			
 		}
 	}
 
@@ -120,14 +138,16 @@ void Orbital::UpdateModel()
 			indices.push_back(verticesPerRing * (ring + 1) + vertex);
 		}
 	}
+
+	UpdateBufferData();
 }
 
 void Orbital::DefineVAOLayout()
 {
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float) + 1 * sizeof(unsigned int), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, 3 * sizeof(float) + 1 * sizeof(unsigned int), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 }
 

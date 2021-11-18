@@ -123,8 +123,30 @@ int main(int argc, char** argv)
 		orbital.BindDefaultShader(camera);
 		orbital.Draw();
 
-		ImGui::Begin("Test Window");
-		ImGui::Button("Test");
+		ImGui::Begin("Orbital Settings");
+
+		if (ImGui::CollapsingHeader("Properties"))
+		{
+			ImGui::SliderInt("l", &orbital.l, 0, 10);
+			if (orbital.m > orbital.l)
+				orbital.m = orbital.l;
+			else if (orbital.m < -orbital.l)
+				orbital.m = -orbital.l;
+
+			ImGui::SliderInt("m", &orbital.m, -orbital.l, orbital.l);
+
+			if (ImGui::Button("Generate"))
+			{
+				orbital.UpdateModel();
+			}
+		}
+
+		if (ImGui::CollapsingHeader("Appearance"))
+		{
+			ImGui::ColorEdit3("Positive Value Color", orbital.GetPositiveColorVPtr());
+			ImGui::ColorEdit3("Negative Value Color", orbital.GetNegativeColorVPtr());
+		}
+
 		ImGui::End();
 
 		ImGui::Render();

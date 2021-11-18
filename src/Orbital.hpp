@@ -8,15 +8,21 @@ class Camera;
 class Orbital : public Model
 {
 public:
-	Orbital(unsigned int l, unsigned int m);
+	Orbital(int l, int m);
 
 	void BindDefaultShader(Camera& camera);
+	float* GetPositiveColorVPtr();
+	float* GetNegativeColorVPtr();
+	void UpdateModel();
 
 private:
-	void UpdateModel();
 	void DefineVAOLayout() final override;
 
+public:
+	glm::vec3 positiveColor, negativeColor;
+	int l, m;
+
 private:
-	unsigned int l, m;
+	
 	static Shader* defaultShader;
 };

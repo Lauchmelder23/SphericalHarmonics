@@ -47,6 +47,12 @@ void Shader::SetMatrix(const std::string& name, const float* data)
 	glUniformMatrix4fv(location, 1, GL_FALSE, data);
 }
 
+void Shader::SetVector3(const std::string& name, const float* data)
+{
+	unsigned int location = glGetUniformLocation(program, name.c_str());
+	glUniform3fv(location, 1, data);
+}
+
 void Shader::Bind()
 {
 	glUseProgram(program);

@@ -10,6 +10,7 @@ public:
 	~Shader();
 	
 	void SetMatrix(const std::string& name, const float* data);
+	void SetVector3(const std::string& name, const float* data);
 
 	void Bind();
 

@@ -8,6 +8,7 @@ public:
 	Orbital(unsigned int l, unsigned int m);
 
 private:
+	void UpdateModel();
 	void DefineVAOLayout() final override;
 
 private:

@@ -21,7 +21,9 @@ Model::Model(std::vector<float>&& vertices, std::vector<unsigned int>&& indices)
 
 Model::~Model()
 {
-	
+	glDeleteBuffers(1, &ebo);
+	glDeleteBuffers(1, &vbo);
+	glDeleteVertexArrays(1, &vao);
 }
 
 void Model::Draw()

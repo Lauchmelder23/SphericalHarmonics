@@ -14,6 +14,12 @@ unsigned int Fac(unsigned int n);
 Orbital::Orbital(unsigned int l, unsigned int m) :
 	l(l), m(m)
 {
+	UpdateModel();
+	CreateVAO();
+}
+
+void Orbital::UpdateModel()
+{
 	unsigned int verticesPerRing = 70;
 	unsigned int rings = 70;
 
@@ -59,8 +65,6 @@ Orbital::Orbital(unsigned int l, unsigned int m) :
 			indices.push_back(verticesPerRing * (ring + 1) + vertex);
 		}
 	}
-
-	CreateVAO();
 }
 
 void Orbital::DefineVAOLayout()

@@ -36,6 +36,11 @@ Shader::Shader(const std::string& vertexShaderSourceCode, const std::string& fra
 	CreateProgram(vertexShaderSourceCode, fragmentShaderSourceCode);
 }
 
+Shader::~Shader()
+{
+	glDeleteProgram(program);
+}
+
 void Shader::SetMatrix(const std::string& name, const float* data)
 {
 	unsigned int location = glGetUniformLocation(program, name.c_str());

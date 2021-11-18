@@ -8,7 +8,7 @@ public:
 	Model();
 	Model(const std::vector<float>& vertices, const std::vector<unsigned int>& indices);
 	Model(std::vector<float>&& vertices, std::vector<unsigned int>&& indices);
-	~Model();
+	virtual ~Model();
 
 	void Draw();
 

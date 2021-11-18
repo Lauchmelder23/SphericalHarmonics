@@ -21,6 +21,7 @@ private:
 public:
 	glm::vec3 positiveColor, negativeColor;
 	int l, m;
+	unsigned int resolution;
 
 private:
 	static Shader* defaultShader;

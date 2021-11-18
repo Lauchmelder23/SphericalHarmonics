@@ -13,7 +13,8 @@
 
 Shader* Axis::defaultShader = nullptr;
 
-Axis::Axis(const glm::vec3& direction, float length)
+Axis::Axis(const glm::vec3& direction, float length) :
+	color({0.6f, 0.6f, 0.6f})
 {
 	if (defaultShader == nullptr)
 	{
@@ -25,13 +26,15 @@ Axis::Axis(const glm::vec3& direction, float length)
 
 			out vec3 outColor;
 
+			uniform vec3 color;
+
 			uniform mat4 model;
 			uniform mat4 view;
 			uniform mat4 projection;
 
 			void main()
 			{
-				outColor = vec3(0.6f, 0.6f, 0.6f);
+				outColor = color;
 				gl_Position = projection * view * model * vec4(position, 1.0f);
 			}	
 		)",
@@ -52,6 +55,7 @@ Axis::Axis(const glm::vec3& direction, float length)
 
 	const unsigned int axisRingResolution = 80;
 
+	// TODO: We're literally creating a new VAO for every axis object. Bad.
 	vertices.push_back(0.0f);
 	vertices.push_back(0.0f);
 	vertices.push_back(length);
@@ -102,4 +106,15 @@ void Axis::BindDefaultShader(Camera& camera)
 	defaultShader->SetMatrix("model", glm::value_ptr(modelMatrix));
 	defaultShader->SetMatrix("view", glm::value_ptr(camera.GetViewMatrix()));
 	defaultShader->SetMatrix("projection", glm::value_ptr(camera.GetProjectionMatrix()));
+	defaultShader->SetVector3("color", glm::value_ptr(color));
+}
+
+const glm::mat4 Axis::GetModelMatrix()
+{
+	return modelMatrix;
+}
+
+float* Axis::GetColorVPtr()
+{
+	return glm::value_ptr(color);
 }

@@ -21,7 +21,8 @@ std::complex<double> SphericalHarmonic(unsigned int l, unsigned int m, float the
 unsigned int Fac(unsigned int n);
 
 Orbital::Orbital(int l, int m) :
-	l(l), m(m), positiveColor({ 0.1f, 0.85f, 0.1f }), negativeColor({ 0.85f, 0.1f, 0.1f })
+	l(l), m(m), positiveColor({ 1.0f, 1.0f, 0.5f }), negativeColor({ 0.5f, 1.0f, 1.0f }),
+	resolution(70)
 {
 	if (defaultShader == nullptr)
 	{
@@ -92,18 +93,15 @@ float* Orbital::GetNegativeColorVPtr()
 
 void Orbital::UpdateModel()
 {
-	unsigned int verticesPerRing = 70;
-	unsigned int rings = 70;
-
 	vertices.clear();
 	indices.clear();
 
-	for (int ring = 0; ring <= rings; ring++)
+	for (int ring = 0; ring <= resolution; ring++)
 	{
-		for (int vertex = 0; vertex < verticesPerRing; vertex++)
+		for (int vertex = 0; vertex < resolution; vertex++)
 		{
-			float phi = vertex * TWO_PI / verticesPerRing;
-			float theta = ring * PI / rings;
+			float phi = vertex * TWO_PI / resolution;
+			float theta = ring * PI / resolution;
 
 			std::complex value = SphericalHarmonic(l, std::abs(m), theta, phi);
 			
@@ -125,17 +123,17 @@ void Orbital::UpdateModel()
 		}
 	}
 
-	for (int ring = 0; ring < rings; ring++)
+	for (int ring = 0; ring < resolution; ring++)
 	{
-		for (int vertex = 0; vertex < verticesPerRing; vertex++)
+		for (int vertex = 0; vertex < resolution; vertex++)
 		{
-			indices.push_back(verticesPerRing * ring + vertex);
-			indices.push_back(verticesPerRing * ring + ((vertex + 1) % verticesPerRing));
-			indices.push_back(verticesPerRing * (ring + 1) + ((vertex + 1) % verticesPerRing));
+			indices.push_back(resolution * ring + vertex);
+			indices.push_back(resolution * ring + ((vertex + 1) % resolution));
+			indices.push_back(resolution * (ring + 1) + ((vertex + 1) % resolution));
 
-			indices.push_back(verticesPerRing * ring + vertex);
-			indices.push_back(verticesPerRing * (ring + 1) + ((vertex + 1) % verticesPerRing));
-			indices.push_back(verticesPerRing * (ring + 1) + vertex);
+			indices.push_back(resolution * ring + vertex);
+			indices.push_back(resolution * (ring + 1) + ((vertex + 1) % resolution));
+			indices.push_back(resolution * (ring + 1) + vertex);
 		}
 	}
 

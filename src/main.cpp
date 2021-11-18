@@ -8,7 +8,7 @@
 #include <backends/imgui_impl_opengl3.h>
 
 #include "Orbital.hpp"
-#include "Axis.hpp"
+#include "CoordinateSystem.hpp"
 #include "Shader.hpp"
 #include "Camera.hpp"
 
@@ -26,6 +26,10 @@ void OnMouseMoved(GLFWwindow* window, double xpos, double ypos);
 void OnKeyPressed(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 void ProcessInput(GLFWwindow* window);
+
+void DrawOrbitalSettings(Orbital& orbital);
+void DrawGeneralSettings(Camera& camera);
+void DrawMathematicalSettings(CoordinateSystem& cs);
 
 int main(int argc, char** argv)
 {
@@ -72,21 +76,18 @@ int main(int argc, char** argv)
 
 	ImGui::StyleColorsDark();
 
+	CoordinateSystem csystem;
+
 	// Create some orbital and set up its transformation matrix
 	// TODO: the matrix should probably be part of Model
 	Orbital orbital(2, 1);
-	Axis axisX(glm::vec3(1.0f, 0.0f, 0.0f), 4.0f);
-	Axis axisY(glm::vec3(0.0f, 1.0f, 0.0f), 4.0f);
-	Axis axisZ(glm::vec3(0.0f, 0.0f, 1.0f), 4.0f);
-
-	glm::mat4 modelMatrix = glm::mat4(1.0f);
-	modelMatrix = glm::rotate(modelMatrix, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	modelMatrix = glm::scale(modelMatrix, glm::vec3(3.0f));
 
 	// Set up a camera 
 	// TODO: should the projection matrix be part of the camera?
 	Camera camera(110.0f, 1200.0f / 800.0f);
-	camera.SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
+	camera.SetPosition(glm::vec3(0.0f, 0.0f, 4.0f));
+
+	glm::vec3 clearColor(0.0f, 0.0f, 0.05f);
 
 	// Data that we want to be able to access from anywhere
 	UserData data = {
@@ -116,7 +117,7 @@ int main(int argc, char** argv)
 		ProcessInput(window);
 
 		// Clear screen
-		glClearColor(0.0f, 0.0f, 0.05f, 0.0f);
+		glClearColor(clearColor.x, clearColor.y, clearColor.z, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Start new ImGui Frame 
@@ -127,38 +128,14 @@ int main(int argc, char** argv)
 		orbital.BindDefaultShader(camera);
 		orbital.Draw();
 
-		axisX.BindDefaultShader(camera);
-		axisX.Draw();
+		csystem.BindDefaultShader(camera);
+		csystem.Draw();
 
-		axisY.BindDefaultShader(camera);
-		axisY.Draw();
+		ImGui::Begin("Settings");
 
-		axisZ.BindDefaultShader(camera);
-		axisZ.Draw();
-
-		ImGui::Begin("Orbital Settings");
-
-		if (ImGui::CollapsingHeader("Properties"))
-		{
-			ImGui::SliderInt("l", &orbital.l, 0, 10);
-			if (orbital.m > orbital.l)
-				orbital.m = orbital.l;
-			else if (orbital.m < -orbital.l)
-				orbital.m = -orbital.l;
-
-			ImGui::SliderInt("m", &orbital.m, -orbital.l, orbital.l);
-
-			if (ImGui::Button("Generate"))
-			{
-				orbital.UpdateModel();
-			}
-		}
-
-		if (ImGui::CollapsingHeader("Appearance"))
-		{
-			ImGui::ColorEdit3("Positive Value Color", orbital.GetPositiveColorVPtr());
-			ImGui::ColorEdit3("Negative Value Color", orbital.GetNegativeColorVPtr());
-		}
+		DrawOrbitalSettings(orbital);
+		DrawGeneralSettings(camera);
+		DrawMathematicalSettings(csystem);
 
 		ImGui::End();
 
@@ -239,4 +216,65 @@ void ProcessInput(GLFWwindow* window)
 		data->camera->MoveUp(cameraSpeed, data->frametime);
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 		data->camera->MoveUp(-cameraSpeed, data->frametime);
+}
+
+void DrawOrbitalSettings(Orbital& orbital)
+{
+	if (ImGui::CollapsingHeader("Orbital Settings"))
+	{
+
+		if (ImGui::TreeNode("Properties"))
+		{
+			ImGui::SliderInt("l", &orbital.l, 0, 8);
+			if (orbital.m > orbital.l)
+				orbital.m = orbital.l;
+			else if (orbital.m < -orbital.l)
+				orbital.m = -orbital.l;
+
+			ImGui::SliderInt("m", &orbital.m, -orbital.l, orbital.l);
+
+			ImGui::SliderInt("Resolution", (int*)&orbital.resolution, 10, 1000);
+
+			if (ImGui::Button("Generate"))
+			{
+				orbital.UpdateModel();
+			}
+
+			ImGui::TreePop();
+			ImGui::Separator();
+		}
+
+		if (ImGui::TreeNode("Appearance"))
+		{
+			ImGui::ColorEdit3("Positive Value Color", orbital.GetPositiveColorVPtr());
+			ImGui::ColorEdit3("Negative Value Color", orbital.GetNegativeColorVPtr());
+
+			ImGui::TreePop();
+			ImGui::Separator();
+		}
+	}
+}
+
+void DrawGeneralSettings(Camera& camera)
+{
+	if(ImGui::CollapsingHeader("Camera Settings"))
+	{
+
+	}
+}
+
+void DrawMathematicalSettings(CoordinateSystem& cs)
+{
+	if (ImGui::CollapsingHeader("Coordinate System Settings"))
+	{
+		if (ImGui::TreeNode("Axes"))
+		{
+			ImGui::ColorEdit3("x-Axis color", cs.GetAxis(0)->GetColorVPtr());
+			ImGui::ColorEdit3("y-Axis color", cs.GetAxis(1)->GetColorVPtr());
+			ImGui::ColorEdit3("z-Axis color", cs.GetAxis(2)->GetColorVPtr());
+
+			ImGui::TreePop();
+			ImGui::Separator();
+		}
+	}
 }

@@ -3,7 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 Camera::Camera() :
-	viewMatrix(1.0f), position(0.0f), front({0.0f, 0.0f, -1.0f}), up({0.0f, 1.0f, 0.0f}), yawPitchRoll(0.0f)
+	viewMatrix(1.0f), position(0.0f), front({ 0.0f, 0.0f, -1.0f }), up({ 0.0f, 1.0f, 0.0f }), yawPitchRoll({ -90.0f, 0.0f, 0.0f })
 {
 }
 

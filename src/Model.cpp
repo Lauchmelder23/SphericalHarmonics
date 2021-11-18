@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 
 Model::Model() :
-	vertices({}), indices({}), vao(0), ebo(0), vbo(0)
+	vertices({}), indices({}), vao(0), ebo(0), vbo(0), modelMatrix({1.0f})
 {
 }
 

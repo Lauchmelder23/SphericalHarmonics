@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <glm/matrix.hpp>
 
 class Model
 {
@@ -20,6 +21,7 @@ protected:
 protected:
 	std::vector<float> vertices;
 	std::vector<unsigned int> indices;
+	glm::mat4 modelMatrix;
 
 private:
 	unsigned int vbo, ebo, vao;

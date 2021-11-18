@@ -13,7 +13,6 @@
 
 struct UserData
 {
-	glm::mat4* projectionMatrix;
 	Camera* camera;
 	float frametime;
 	double lastX, lastY;
@@ -82,48 +81,11 @@ int main(int argc, char** argv)
 
 	// Set up a camera 
 	// TODO: should the projection matrix be part of the camera?
-	Camera camera;
+	Camera camera(110.0f, 1200.0f / 800.0f);
 	camera.SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
-
-	glm::mat4 projectionMatrix = glm::perspective(glm::radians(110.0f), 1200.0f / 800.0f, 0.1f, 100.0f);
-
-	// Write some shaders to display the orbitals (too lazy to put them in files)
-	Shader shader(
-		R"(
-			#version 460 core
-
-			layout(location = 0) in vec3 position;
-			layout(location = 1) in vec3 color;
-
-			out vec3 outColor;
-
-			uniform mat4 model;
-			uniform mat4 view;
-			uniform mat4 projection;
-
-			void main()
-			{
-				outColor = color;
-				gl_Position = projection * view * model * vec4(position, 1.0f);
-			}	
-		)",
-
-		R"(
-			#version 460 core
-			
-			in vec3 outColor;
-			out vec4 FragColor;
-
-			void main()
-			{	
-				FragColor = vec4(outColor, 1.0f);
-			}
-		)"
-	);
 
 	// Data that we want to be able to access from anywhere
 	UserData data = {
-		&projectionMatrix,	// Projection matrix
 		&camera,			// The camera object
 		0.0,				// Duration of the last frame
 		0.0, 0.0,			// Mouse position of the last frame
@@ -158,13 +120,7 @@ int main(int argc, char** argv)
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		// Use our shader and set the matrices
-		shader.Bind();
-		shader.SetMatrix("model", &modelMatrix[0][0]);
-		shader.SetMatrix("view", camera.GetViewMatrix());
-		shader.SetMatrix("projection", &projectionMatrix[0][0]);
-
-		// Finally draw the orbital
+		orbital.BindDefaultShader(camera);
 		orbital.Draw();
 
 		ImGui::Begin("Test Window");
@@ -192,7 +148,7 @@ void OnFramebufferResize(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 	UserData* data = (UserData*)glfwGetWindowUserPointer(window);
-	*(data->projectionMatrix) = glm::perspective(glm::radians(110.0f), (float)width / (float)height, 0.1f, 100.0f);
+	data->camera->UpdatePerspective(110.0f, (float)width / (float)height);
 }
 
 void OnMouseMoved(GLFWwindow* window, double xpos, double ypos)

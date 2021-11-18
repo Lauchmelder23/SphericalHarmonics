@@ -2,20 +2,22 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-Camera::Camera() :
-	viewMatrix(1.0f), position(0.0f), front({ 0.0f, 0.0f, -1.0f }), up({ 0.0f, 1.0f, 0.0f }), yawPitchRoll({ -90.0f, 0.0f, 0.0f })
+Camera::Camera(float fov, float aspectRatio) :
+	viewMatrix(1.0f), position(0.0f), 
+	front({ 0.0f, 0.0f, -1.0f }), up({ 0.0f, 1.0f, 0.0f }), 
+	yawPitchRoll({ -90.0f, 0.0f, 0.0f })
 {
-}
-
-float* Camera::GetViewMatrix()
-{
-	viewMatrix = glm::lookAt(position, position + front, up);
-	return &viewMatrix[0][0];
+	projectionMatrix = glm::perspective(glm::radians(fov), aspectRatio, 0.1f, 100.0f);
 }
 
 void Camera::SetPosition(const glm::vec3& position)
 {
 	this->position = position;
+}
+
+void Camera::UpdatePerspective(float fov, float aspectRatio)
+{
+	projectionMatrix = glm::perspective(glm::radians(fov), aspectRatio, 0.1f, 100.0f);
 }
 
 void Camera::MoveForward(float amount, float frametime)
@@ -51,4 +53,15 @@ void Camera::HandleMouseMoved(double deltaX, double deltaY, float sensitivity, f
 	direction.y = sin(glm::radians(yawPitchRoll.y));
 	direction.z = sin(glm::radians(yawPitchRoll.x)) * cos(glm::radians(yawPitchRoll.y));
 	front = glm::normalize(direction);
+}
+
+const glm::mat4& Camera::GetViewMatrix()
+{
+	viewMatrix = glm::lookAt(position, position + front, up);
+	return viewMatrix;
+}
+
+const glm::mat4& Camera::GetProjectionMatrix() const
+{
+	return projectionMatrix;
 }

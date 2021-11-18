@@ -1,12 +1,20 @@
 #include "Orbital.hpp"
 
-#include <glad/glad.h>
-
-#define TWO_PI           6.28318530718
+#define TWO_PI       6.28318530718
 #define PI           3.14159265359
 
 #include <cmath>
 #include <complex>
+
+#include <glad/glad.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include "Shader.hpp"
+#include "Camera.hpp"
+
+// Write some shaders to display the orbitals (too lazy to put them in files)
+Shader* Orbital::defaultShader = nullptr; 
 
 std::complex<double> SphericalHarmonic(unsigned int l, unsigned int m, float theta, float phi);
 unsigned int Fac(unsigned int n);
@@ -14,8 +22,55 @@ unsigned int Fac(unsigned int n);
 Orbital::Orbital(unsigned int l, unsigned int m) :
 	l(l), m(m)
 {
+	if (defaultShader == nullptr)
+	{
+		defaultShader = new Shader(
+			R"(
+			#version 460 core
+
+			layout(location = 0) in vec3 position;
+			layout(location = 1) in vec3 color;
+
+			out vec3 outColor;
+
+			uniform mat4 model;
+			uniform mat4 view;
+			uniform mat4 projection;
+
+			void main()
+			{
+				outColor = color;
+				gl_Position = projection * view * model * vec4(position, 1.0f);
+			}	
+		)",
+
+			R"(
+			#version 460 core
+			
+			in vec3 outColor;
+			out vec4 FragColor;
+
+			void main()
+			{	
+				FragColor = vec4(outColor, 1.0f);
+			}
+		)"
+		);
+	}
+
 	UpdateModel();
 	CreateVAO();
+
+	modelMatrix = glm::rotate(modelMatrix, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(3.0f));
+}
+
+void Orbital::BindDefaultShader(Camera& camera)
+{
+	defaultShader->Bind();
+	defaultShader->SetMatrix("model", glm::value_ptr(modelMatrix));
+	defaultShader->SetMatrix("view", glm::value_ptr(camera.GetViewMatrix()));
+	defaultShader->SetMatrix("projection", glm::value_ptr(camera.GetProjectionMatrix()));
 }
 
 void Orbital::UpdateModel()

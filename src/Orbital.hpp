@@ -2,10 +2,15 @@
 
 #include "Model.hpp"
 
+class Shader;
+class Camera;
+
 class Orbital : public Model
 {
 public:
 	Orbital(unsigned int l, unsigned int m);
+
+	void BindDefaultShader(Camera& camera);
 
 private:
 	void UpdateModel();
@@ -13,4 +18,5 @@ private:
 
 private:
 	unsigned int l, m;
+	static Shader* defaultShader;
 };

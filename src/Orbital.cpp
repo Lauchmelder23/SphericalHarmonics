@@ -65,7 +65,7 @@ Orbital::Orbital(int l, int m) :
 	CreateVAO();
 	UpdateModel();
 
-	modelMatrix = glm::rotate(modelMatrix, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	// modelMatrix = glm::rotate(modelMatrix, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	modelMatrix = glm::scale(modelMatrix, glm::vec3(3.0f));
 }
 

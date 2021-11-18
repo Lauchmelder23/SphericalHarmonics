@@ -1,4 +1,4 @@
-add_executable(orbitals "main.cpp" "Model.cpp" "Shader.cpp" "Camera.cpp" "Orbital.cpp")
+add_executable(orbitals "main.cpp" "Model.cpp" "Shader.cpp" "Camera.cpp" "Orbital.cpp" "Axis.cpp")
 
 # Add GLFW, GLM, GLAD and ImGui include directories to target
 target_include_directories(orbitals PRIVATE 

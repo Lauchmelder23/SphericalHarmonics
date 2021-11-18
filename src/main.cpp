@@ -8,6 +8,7 @@
 #include <backends/imgui_impl_opengl3.h>
 
 #include "Orbital.hpp"
+#include "Axis.hpp"
 #include "Shader.hpp"
 #include "Camera.hpp"
 
@@ -74,6 +75,9 @@ int main(int argc, char** argv)
 	// Create some orbital and set up its transformation matrix
 	// TODO: the matrix should probably be part of Model
 	Orbital orbital(2, 1);
+	Axis axisX(glm::vec3(1.0f, 0.0f, 0.0f), 4.0f);
+	Axis axisY(glm::vec3(0.0f, 1.0f, 0.0f), 4.0f);
+	Axis axisZ(glm::vec3(0.0f, 0.0f, 1.0f), 4.0f);
 
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 	modelMatrix = glm::rotate(modelMatrix, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -122,6 +126,15 @@ int main(int argc, char** argv)
 
 		orbital.BindDefaultShader(camera);
 		orbital.Draw();
+
+		axisX.BindDefaultShader(camera);
+		axisX.Draw();
+
+		axisY.BindDefaultShader(camera);
+		axisY.Draw();
+
+		axisZ.BindDefaultShader(camera);
+		axisZ.Draw();
 
 		ImGui::Begin("Orbital Settings");
 

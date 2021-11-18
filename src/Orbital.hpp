@@ -23,6 +23,5 @@ public:
 	int l, m;
 
 private:
-	
 	static Shader* defaultShader;
 };

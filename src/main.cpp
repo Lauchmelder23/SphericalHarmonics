@@ -5,7 +5,6 @@
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Model.hpp"
 #include "Orbital.hpp"
 #include "Shader.hpp"
 #include "Camera.hpp"
@@ -55,40 +54,7 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	Model triangle(
-		{
-			-1.0f, -1.0f, 1.0f,			// Front Bottom, Left
-			-1.0f,  1.0f, 1.0f,			// Front Top Left
-			 1.0f,  1.0f, 1.0f,			// Front Top Right
-			 1.0f, -1.0f, 1.0f,			// Front Bottom Right
-
-			-1.0f, -1.0f, -1.0f,		// Back Bottom, Left
-			-1.0f,  1.0f, -1.0f,		// Back Top Left
-			 1.0f,  1.0f, -1.0f,		// Back Top Right
-			 1.0f, -1.0f, -1.0f,		// Back Bottom Right
-		},
-		{
-			0, 1, 2,
-			0, 2, 3,
-
-			3, 2, 6,
-			3, 6, 7,
-			
-			4, 5, 1,
-			4, 1, 0,
-
-			1, 5, 6,
-			1, 6, 2,
-
-			4, 0, 3,
-			4, 3, 7,
-
-			7, 6, 5,
-			7, 5, 4
-		}
-	);
-
-	Orbital orbital(4, 2);
+	Orbital orbital(2, 1);
 
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 	modelMatrix = glm::rotate(modelMatrix, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));

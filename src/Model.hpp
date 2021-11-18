@@ -14,6 +14,7 @@ public:
 
 protected:
 	void CreateVAO();
+	void UpdateBufferData();
 	virtual void DefineVAOLayout();
 
 protected:

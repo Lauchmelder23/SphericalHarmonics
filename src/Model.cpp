@@ -21,6 +21,7 @@ Model::Model(std::vector<float>&& vertices, std::vector<unsigned int>&& indices)
 
 Model::~Model()
 {
+	
 }
 
 void Model::Draw()
@@ -35,16 +36,21 @@ void Model::CreateVAO()
 	glBindVertexArray(vao);
 
 	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-
 	glGenBuffers(1, &ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
+	UpdateBufferData();
 	DefineVAOLayout();
 
 	glBindVertexArray(0);
+}
+
+void Model::UpdateBufferData()
+{
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 }
 
 void Model::DefineVAOLayout()
